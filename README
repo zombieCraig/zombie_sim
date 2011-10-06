@@ -1,0 +1,9 @@
+This is written for processing.  I've been building on 2.0 but should work with older versions.
+
+Currently this is at a very early stage of development.
+
+The design goal is to have a simulation system similar to what the CDC may have.  With complex rules an AI.  The goal is to be able to test timings and set parameters and simply watch the results  It allows for tracking of individuals by clickng on them.
+
+Currently just uploading for the curious.  It may one day actually achieve the intended goal.
+
+--zombieCraig
