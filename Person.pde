@@ -15,6 +15,8 @@ class Person {
   boolean logging;
   boolean selected;
   int last_goal;
+  Position goal_position;
+  Position walkto_position;
   
   final int GOAL_REST = 0;
   final int GOAL_GOTO_BUILDING = 1;
@@ -36,6 +38,7 @@ class Person {
     selected = false;
   }
 
+  // Returns a building if the person is in one else null
   Building in_building() {
     Iterator n = homes.iterator();
     while(n.hasNext()) {
@@ -47,6 +50,7 @@ class Person {
     return null; 
   }
 
+  // Main decision making function for the person.
   void act() {
     if(fear == 0) {
        switch(goal) {
@@ -68,6 +72,7 @@ class Person {
                  case GOAL_GOTO_BUILDING:
                   if(homes.size() > 0) {
                     target_building = (Building)homes.get(int(random(homes.size())));
+                    goal_position = target_building.get_random_position();
                     goal = GOAL_GOTO_BUILDING;
                   } else {
                    println(id + "ERROR: No known neighborhood"); 
@@ -87,42 +92,16 @@ class Person {
           if(in_home != null) {
             if(in_home == target_building) {
              if(logging) log("Arrived at my destination");
-             goal = GOAL_REST;
-            } else {
-             if(target_building == null) {
-               println("ERROR: " +id+" Null target building");
+             if((int)goal_position.get_x() == (int)xpos && (int)goal_position.get_y() == (int)ypos)
                goal = GOAL_REST;
-             } else {
-               // TODO: Change to find nearest exit
-               if(target_building.get_xpos() > xpos) {
-                 xpos++;
-               } else if(target_building.get_xpos() < xpos) {
-                 xpos--;
-               }
-               if(target_building.get_ypos() > ypos) {
-                 ypos++;
-               } else if(target_building.get_ypos() < ypos) {
-                 ypos--;
-               }
-             }
+             else
+               walk();
+            } else {
+              walk();
             }
           } else {
             // Outside heading towards building
-             if(target_building == null) {
-               println("ERROR: " +id+" Null target building");
-               goal = GOAL_REST;
-             } else {
-               if(target_building.get_xpos() > xpos) {
-                 xpos++;
-               } else if(target_building.get_xpos() < xpos) {
-                 xpos--;
-               }
-               if(target_building.get_ypos() > ypos) {
-                 ypos++;
-               } else if(target_building.get_ypos() < ypos) {
-                 ypos--;
-               }
-             }
+            walk();
           }
           break;
         default:
@@ -148,6 +127,29 @@ class Person {
       } 
     }
     last_goal = goal;
+  }
+  
+  void walk() {
+    if(target_building == null) {
+       println("ERROR: " +id+" Null target building");
+       goal = GOAL_REST;
+     } else {
+       if(goal_position == null) {
+         println("ERROR: " +id+ " No goal position set");
+         goal = GOAL_REST;
+       } else {
+         if ((int)goal_position.get_x() > (int)xpos) {
+           xpos++;
+         } else if((int)goal_position.get_x() < (int)xpos) {
+           xpos--;
+         }
+         if ((int)goal_position.get_y() > (int)ypos) {
+           ypos++;
+         } else if((int)goal_position.get_y() < (int)ypos) {
+           ypos--;
+         }
+       }
+     } 
   }
   
   void draw() {

@@ -42,15 +42,29 @@ class Building {
     next_building_id++;
   }
   
+  // Used when initializing a building to populate the building with people.
   ArrayList<Person> populate_building() {
     int num_occupants = int(random(max_occupants));
     ArrayList people = new ArrayList();
     for(int i = 0; i < num_occupants; i++) {
-       float startx = random(min_x+4, max_x-4);
-       float starty = random(min_y+4, max_y-4);
-       people.add(new Person(startx, starty));
+       people.add(new Person(get_random_x(), get_random_y()));
     }
     return people;
+  }
+  
+  // Returns a random X location inside of the building
+  float get_random_x() {
+    return random(min_x+4, max_x-4);
+  }
+  
+  // Returns a random Y location inside of the building
+  float get_random_y() {
+    return random(min_y+4, max_y-4);
+  }
+  
+  Position get_random_position() {
+    Position pos = new Position(get_random_x(), get_random_y());
+    return pos; 
   }
   
   void draw() {
@@ -94,10 +108,21 @@ class Building {
   }  /* End of Draw */
   
   boolean overlapping(int centerx, int centery, int obj_w, int obj_h) {
-    if((centerx - obj_w/2 > min_x && centerx + obj_w/2 < max_x) &&
-       (centery - obj_h/2 > min_y && centery + obj_h/2 < max_y))
-         return true;
-    return false;
+    int leftx = centerx - obj_w/2;
+    int rightx = centerx + obj_w/2;
+    int topy = centery - obj_h/2;
+    int bottomy = centery + obj_h/2;
+    boolean overlap_x = false;
+    boolean overlap_y = false;
+    if(leftx > min_x && leftx < max_x)
+      overlap_x = true;
+    if(rightx > min_x && rightx < max_x)
+      overlap_x = true;
+    if(topy > min_y && topy < max_y)
+      overlap_y = true;
+    if(bottomy > min_y && bottomy < max_y)
+      overlap_y = true;
+    return overlap_x && overlap_y;
   }
   
   void set_posx(int x) {
@@ -108,8 +133,8 @@ class Building {
   
   void set_posy(int y) {
     ypos = y;
-    min_y = y - building_width/2;
-    max_y = y + building_width/2;
+    min_y = y - building_height/2;
+    max_y = y + building_height/2;
   }
   
   int get_xpos() {
