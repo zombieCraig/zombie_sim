@@ -6,6 +6,8 @@
 
 
 int number_of_buildings = 4;
+int steps_per_stamina = 15;
+int recovery_ticks = 20;
 
 final int NORTH = 0;
 final int EAST = 1;
@@ -31,6 +33,7 @@ int next_building_id = 1;
 Person person_selected = null;
 int mode = SIM_PAUSE;
 PFont dashboard_font;
+PathFinder path;
 
 void setup() {
   size(700, 500); // Needs to be hardcoded to make an applet
@@ -55,6 +58,8 @@ void setup() {
     }
     people.addAll(household);
   }
+  path = new PathFinder(map_area_w, map_area_h, 15);
+  //path.set_debugging(true);
 }
 
 void place_randomly() {
@@ -94,6 +99,19 @@ void update_dashboard() {
     fill(0);
     textAlign(LEFT);
     text("Person #" + person_selected.get_id(), d_w, 20);
+    textFont(dashboard_font, 12);
+    text("H: " + person_selected.get_health() + "/" + person_selected.get_max_health(), d_w, 35);
+    text("S: " + person_selected.get_stamina() + "/" + person_selected.get_max_stamina(), d_w, 50);
+    if(person_selected.get_infection_level() > 0) {
+      text("Infected", d_w, 65); // Todo show actual level
+    } else {
+      text("Healthy", d_w, 65); 
+    }
+    if(person_selected.get_fear() == 0) {
+      text("Calm", d_w, 80);
+    } else { // TODO list different levels of fear
+      text("Afraid", d_w, 80);
+    }
   }
   draw_controls();
 }
@@ -107,6 +125,7 @@ void update_people() {
     }
     person.draw(); 
   }
+  path.draw();
 }
 
 void mouseClicked() {

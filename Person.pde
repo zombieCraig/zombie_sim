@@ -11,12 +11,15 @@ class Person {
   color c;
   Building home;
   int id;
+  int steps_taken; // for walking
+  int resting_time;
   Building target_building;
   boolean logging;
   boolean selected;
   int last_goal;
   Position goal_position;
   Position walkto_position;
+  ArrayList<Position> walk_path;
   
   final int GOAL_REST = 0;
   final int GOAL_GOTO_BUILDING = 1;
@@ -36,6 +39,8 @@ class Person {
     next_player_id++;
     logging = false;
     selected = false;
+    steps_taken = 0;
+    resting_time = 0;
   }
 
   // Returns a building if the person is in one else null
@@ -57,7 +62,18 @@ class Person {
         case GOAL_REST:
           if(stamina < max_stamina) {
             if(in_building() != null) {
-               
+              resting_time++;
+              if(resting_time > recovery_ticks) {
+                stamina++;
+                health++;
+                if(stamina > max_stamina) {
+                  stamina = max_stamina;
+                }
+                if(health > max_health) {
+                  health = max_health;
+                }
+                resting_time = 0;
+              }
             } else {
               // Since not afraid, head home to rest.
               target_building = home;
@@ -73,6 +89,7 @@ class Person {
                   if(homes.size() > 0) {
                     target_building = (Building)homes.get(int(random(homes.size())));
                     goal_position = target_building.get_random_position();
+                    walk_path = path.get_path(new Position(xpos, ypos), goal_position);
                     goal = GOAL_GOTO_BUILDING;
                   } else {
                    println(id + "ERROR: No known neighborhood"); 
@@ -91,11 +108,12 @@ class Person {
           Building in_home = in_building();
           if(in_home != null) {
             if(in_home == target_building) {
-             if(logging) log("Arrived at my destination");
-             if((int)goal_position.get_x() == (int)xpos && (int)goal_position.get_y() == (int)ypos)
+             if((int)goal_position.get_x() == (int)xpos && (int)goal_position.get_y() == (int)ypos) {
+               if(logging) log("Arrived at my destination, resting");
                goal = GOAL_REST;
-             else
+             } else {
                walk();
+             }
             } else {
               walk();
             }
@@ -133,6 +151,9 @@ class Person {
     if(target_building == null) {
        println("ERROR: " +id+" Null target building");
        goal = GOAL_REST;
+    } else if(stamina < 1) {
+       log("I'm too exhausted");
+       goal = GOAL_REST;
      } else {
        if(goal_position == null) {
          println("ERROR: " +id+ " No goal position set");
@@ -147,6 +168,11 @@ class Person {
            ypos++;
          } else if((int)goal_position.get_y() < (int)ypos) {
            ypos--;
+         }
+         steps_taken++;
+         if(steps_taken > steps_per_stamina) {
+           steps_taken = 0;
+           stamina--;
          }
        }
      } 
@@ -191,6 +217,30 @@ class Person {
   
   float get_posy() {
     return ypos;
+  }
+  
+  int get_health() {
+    return health;
+  }
+  
+  int get_max_health() {
+    return max_health;
+  }
+  
+  int get_stamina() {
+    return stamina;
+  }
+  
+  int get_max_stamina() {
+    return max_stamina;
+  }
+  
+  int get_infection_level() {
+    return infection_level;
+  }
+  
+  int get_fear() {
+    return fear;
   }
 }
 
