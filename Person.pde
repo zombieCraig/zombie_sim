@@ -89,7 +89,7 @@ class Person {
                   if(homes.size() > 0) {
                     target_building = (Building)homes.get(int(random(homes.size())));
                     goal_position = target_building.get_random_position();
-                    walk_path = path.get_path(new Position(xpos, ypos), goal_position);
+                    walk_path = path.get_path(this, target_building, goal_position);
                     goal = GOAL_GOTO_BUILDING;
                   } else {
                    println(id + "ERROR: No known neighborhood"); 
@@ -217,6 +217,10 @@ class Person {
   
   float get_posy() {
     return ypos;
+  }
+  
+  Position get_position() {
+    return new Position(xpos, ypos);
   }
   
   int get_health() {

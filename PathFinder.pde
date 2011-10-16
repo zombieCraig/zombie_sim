@@ -14,8 +14,17 @@ class PathFinder {
    rows = int(area_h/grid_sz); 
  } 
  
- ArrayList<Position> get_path(Position start, Position end) {
+ ArrayList<Position> get_path(Person p, Building end_building, Position end_position) {
    ArrayList new_path = new ArrayList();
+   Position current_position = p.get_position();
+   Building start_building = p.in_building();
+   if(start_building != null) {
+      current_position = start_building.nearest_exit(p.get_position());
+      new_path.add(current_position);
+   }
+   // TODO use A* here
+   new_path.add(end_building.nearest_exit(current_position));
+   new_path.add(end_position);   
    if(debugging) {
      // mode = SIM_PAUSE;
    }

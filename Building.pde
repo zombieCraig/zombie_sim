@@ -11,6 +11,7 @@ class Building {
   float min_y;
   float max_y;
   int id;
+  Position[] exit_position = new Position[4];
   
   Building() {
     max_occupants = 5;
@@ -40,6 +41,7 @@ class Building {
     floor_color= color(#cccccc);
     id = next_building_id;
     next_building_id++;
+    update_exit_locations();
   }
   
   // Used when initializing a building to populate the building with people.
@@ -50,6 +52,39 @@ class Building {
        people.add(new Person(get_random_x(), get_random_y()));
     }
     return people;
+  }
+  
+  // Return the position of the nearest exit
+  Position nearest_exit(Position pos) {
+    float x_pos = pos.get_x();
+    float y_pos = pos.get_y();
+    int closest_exit = -1;
+    int min_diff = 9001; // Initial diff is over 9000!
+    for(int x=0; x < 4; x++) {
+      if(exit_locations[x]) {
+        if((int(abs(x_pos - exit_position[x].get_x()) + abs(y_pos - exit_position[x].get_y()))) < min_diff) {
+         closest_exit = x;
+         min_diff = int(abs(x_pos - exit_position[x].get_x()) + abs(y_pos - exit_position[x].get_y()));
+        }
+      }
+    }
+    return exit_position[closest_exit];
+  }
+  
+  // Updates the location of the exits.  Done during init
+  void update_exit_locations() {
+    if(exit_locations[NORTH]) {
+      exit_position[NORTH] = new Position(xpos, ypos - building_height/2);
+    }
+    if(exit_locations[EAST]) {
+      exit_position[EAST] = new Position(xpos + building_width/2, ypos);
+    }
+    if(exit_locations[SOUTH]) {
+      exit_position[SOUTH] = new Position(xpos, ypos + building_height/2);
+    }
+    if(exit_locations[WEST]) {
+      exit_position[WEST] = new Position(xpos - building_width/2, ypos);
+    }
   }
   
   // Returns a random X location inside of the building
@@ -129,12 +164,14 @@ class Building {
     xpos = x;
     min_x = x - building_width/2;
     max_x = x + building_width/2;
+    update_exit_locations();
   }
   
   void set_posy(int y) {
     ypos = y;
     min_y = y - building_height/2;
     max_y = y + building_height/2;
+    update_exit_locations();
   }
   
   int get_xpos() {
