@@ -31,6 +31,17 @@ class PathFinder {
    return new_path;
  }
  
+ void debug_print_path(ArrayList my_path) {
+   int i=0;
+   Iterator p = my_path.iterator();
+   println("DEBUG PATH");
+   while(p.hasNext()) {
+     Position next_p = (Position)p.next();
+     println(i + ") " + next_p.get_x() + "," + next_p.get_y());
+     i++;
+   }
+ }
+ 
  void draw_grid() {
    for(int x = 0; x <= rows; x++) {
      line(0, x*grid_sz, area_w, x*grid_sz);

@@ -41,6 +41,7 @@ class Person {
     selected = false;
     steps_taken = 0;
     resting_time = 0;
+    walk_path = new ArrayList();
   }
 
   // Returns a building if the person is in one else null
@@ -54,6 +55,20 @@ class Person {
     }
     return null; 
   }
+  
+  // Sets goal_position to the next element in walk_path.  Returns false if at destination
+  // This is to be called when they are at goal_position
+  boolean next_goal() {
+   boolean at_destination = true;
+   if(walk_path.size() > 0) {
+      goal_position = walk_path.get(0);
+      walk_path.remove(0);
+      at_destination = false;
+      if(selected) println("New Goal: " + goal_position.get_x() + "," + goal_position.get_y());
+   }
+   return at_destination; 
+  }
+  
 
   // Main decision making function for the person.
   void act() {
@@ -89,7 +104,13 @@ class Person {
                   if(homes.size() > 0) {
                     target_building = (Building)homes.get(int(random(homes.size())));
                     goal_position = target_building.get_random_position();
-                    walk_path = path.get_path(this, target_building, goal_position);
+                    if(in_building() != target_building) {
+                      walk_path = path.get_path(this, target_building, goal_position);
+                      if(selected) path.debug_print_path(walk_path);  // DEBUG
+                    } else {
+                      walk_path.add(goal_position); 
+                    }
+                    next_goal();
                     goal = GOAL_GOTO_BUILDING;
                   } else {
                    println(id + "ERROR: No known neighborhood"); 
@@ -104,21 +125,16 @@ class Person {
             }
             break;
           }
+          break;
         case GOAL_GOTO_BUILDING:
-          Building in_home = in_building();
-          if(in_home != null) {
-            if(in_home == target_building) {
-             if((int)goal_position.get_x() == (int)xpos && (int)goal_position.get_y() == (int)ypos) {
-               if(logging) log("Arrived at my destination, resting");
-               goal = GOAL_REST;
-             } else {
-               walk();
+          if((int)goal_position.get_x() == (int)xpos && (int)goal_position.get_y() == (int)ypos) {
+             if(next_goal()) {
+                 if(logging) log("Arrived at my destination, resting");
+                 goal = GOAL_REST;
+             } else { // There are more points on walk_path keep walking
+                 walk();
              }
-            } else {
-              walk();
-            }
           } else {
-            // Outside heading towards building
             walk();
           }
           break;
